@@ -6,6 +6,9 @@ import com.othmansmaili.store.dtos.UpdateUserRequest;
 import com.othmansmaili.store.dtos.UserDto;
 import com.othmansmaili.store.mappers.UserMapper;
 import com.othmansmaili.store.repositories.UserRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -13,18 +16,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Map;
 import java.util.Set;
 
 @RestController
 @AllArgsConstructor
 @RequestMapping("/users")
+@Tag(name = "Users")
 public class UserController {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
     @GetMapping
+    @Operation(summary = "Get all users")
     public Iterable<UserDto> getAllUsers(
-            @RequestParam(required = false, defaultValue = "", name = "sort") String sortBy
+        @RequestParam(required = false, defaultValue = "", name = "sort") String sortBy
     ) {
         if (!Set.of("name", "email").contains(sortBy))
             sortBy = "name";
@@ -36,6 +42,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get user by id")
     public ResponseEntity<UserDto> getUser(@PathVariable Long id) {
         var user = userRepository.findById(id).orElse(null);
         if (user == null) {
@@ -46,10 +53,17 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> createUser(
-            @RequestBody RegisterUserRequest request,
-            UriComponentsBuilder uriBuilder
+    @Operation(summary = "Register new user")
+    public ResponseEntity<?> registerUser(
+        @Valid @RequestBody RegisterUserRequest request,
+        UriComponentsBuilder uriBuilder
     ) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            return ResponseEntity.badRequest().body(
+                    Map.of("email:", "Email is already registered")
+            );
+        }
+
         var user = userMapper.toEntity(request);
         userRepository.save(user);
 
@@ -59,9 +73,11 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update user")
     public ResponseEntity<UserDto> updateUser(
-            @PathVariable(name = "id") Long id,
-            @RequestBody UpdateUserRequest request) {
+        @PathVariable(name = "id") Long id,
+        @RequestBody UpdateUserRequest request
+    ) {
         var user = userRepository.findById(id).orElse(null);
         if (user == null) {
             return ResponseEntity.notFound().build();
@@ -74,6 +90,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete user")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         var user = userRepository.findById(id).orElse(null);
         if (user == null) {
@@ -85,9 +102,11 @@ public class UserController {
     }
 
     @PostMapping("/{id}/change-password")
+    @Operation(summary = "Change user password")
     public ResponseEntity<Void> changePassword(
-            @PathVariable Long id,
-            @RequestBody ChangePasswordRequest request) {
+        @PathVariable Long id,
+        @RequestBody ChangePasswordRequest request
+    ) {
         var user = userRepository.findById(id).orElse(null);
         if (user == null) {
             return ResponseEntity.notFound().build();
@@ -102,4 +121,5 @@ public class UserController {
 
         return ResponseEntity.noContent().build();
     }
+
 }
