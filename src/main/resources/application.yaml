@@ -7,3 +7,5 @@ spring:
     password: mOks.11233455
   jpa:
     show-sql: true
+  jwt:
+    secret: ${JWT_SECRET}
