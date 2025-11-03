@@ -2,6 +2,9 @@ package com.othmansmaili.store.controllers;
 
 import com.othmansmaili.store.dtos.JwtResponse;
 import com.othmansmaili.store.dtos.LoginRequest;
+import com.othmansmaili.store.dtos.UserDto;
+import com.othmansmaili.store.mappers.UserMapper;
+import com.othmansmaili.store.repositories.UserRepository;
 import com.othmansmaili.store.services.JwtService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -11,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
@@ -20,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final UserRepository userRepository;
+    private UserMapper userMapper;
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(
@@ -49,5 +55,20 @@ public class AuthController {
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<Void> handleBadCredentialsException() {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserDto> me() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        var email = (String) authentication.getPrincipal();
+
+        var user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        var userDto = userMapper.toDto(user);
+
+        return ResponseEntity.ok(userDto);
     }
 }
