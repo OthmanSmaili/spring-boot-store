@@ -4,6 +4,7 @@ import com.othmansmaili.store.dtos.ChangePasswordRequest;
 import com.othmansmaili.store.dtos.RegisterUserRequest;
 import com.othmansmaili.store.dtos.UpdateUserRequest;
 import com.othmansmaili.store.dtos.UserDto;
+import com.othmansmaili.store.entities.Role;
 import com.othmansmaili.store.mappers.UserMapper;
 import com.othmansmaili.store.repositories.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -68,6 +69,7 @@ public class UserController {
 
         var user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(Role.USER);
         userRepository.save(user);
 
         var userDto = userMapper.toDto(user);
