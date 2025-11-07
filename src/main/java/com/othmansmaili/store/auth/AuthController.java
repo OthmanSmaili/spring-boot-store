@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Authentication")
 public class AuthController {
     private final JwtConfig jwtConfig;
-    private UserMapper userMapper;
-    private AuthService authService;
+    private final UserMapper userMapper;
+    private final AuthService authService;
 
     @PostMapping("/login")
     public JwtResponse login(

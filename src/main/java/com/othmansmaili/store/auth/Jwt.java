@@ -20,7 +20,7 @@ public class Jwt {
         return claims.getExpiration().before(new Date());
     }
 
-    public long getUserId() {
+    public Long getUserId() {
         return Long.valueOf(claims.getSubject());
     }
 

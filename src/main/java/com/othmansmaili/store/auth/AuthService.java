@@ -12,9 +12,9 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 @Service
 public class AuthService {
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
-    private JwtService jwtService;
+    private final JwtService jwtService;
 
     public User getCurrentUser() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -25,10 +25,10 @@ public class AuthService {
 
     public LoginResponse login(LoginRequest request) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
+            new UsernamePasswordAuthenticationToken(
+                    request.getEmail(),
+                    request.getPassword()
+            )
         );
 
         var user = userRepository.findByEmail(request.getEmail()).orElseThrow();

@@ -20,7 +20,6 @@ public class OrderService {
         return orders.stream().map(orderMapper::toDto).toList();
     }
 
-
     public OrderDto getOrder(Long orderId) {
         var order = orderRepository
                 .getOrderWithItems(orderId)
