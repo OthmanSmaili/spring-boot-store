@@ -22,7 +22,7 @@ CREATE TABLE products
     name          VARCHAR(255)   NOT NULL,
     price         DECIMAL(10, 2) NOT NULL,
     `description` LONGTEXT       NOT NULL,
-    category_id   TINYINT NULL,
+    category_id   TINYINT NOT NULL,
     CONSTRAINT `PRIMARY` PRIMARY KEY (id)
 );
 
