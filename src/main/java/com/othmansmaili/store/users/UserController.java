@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -60,6 +60,7 @@ public class UserController {
     }
 
     @PostMapping("/{id}/change-password")
+    @PreAuthorize("#id == principal or hasRole('ADMIN')")
     @Operation(summary = "Change user password")
     public void changePassword(
         @PathVariable Long id,
@@ -80,8 +81,8 @@ public class UserController {
         return ResponseEntity.notFound().build();
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Void> handleAccessDenied() {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    @ExceptionHandler(InvalidOldPasswordException.class)
+    public ResponseEntity<Void> handleInvalidOldPassword() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 }
