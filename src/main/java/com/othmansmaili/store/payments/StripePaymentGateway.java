@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
-public class StripePaymentGateway implements PaymentGateway{
+public class StripePaymentGateway implements PaymentGateway {
     @Value("${websiteUrl}")
     private String websiteUrl;
 
@@ -70,7 +70,7 @@ public class StripePaymentGateway implements PaymentGateway{
                 default -> Optional.empty();
             };
         } catch (SignatureVerificationException e) {
-            throw new PaymentException("Invalid Signature");
+            throw new PaymentException("Invalid signature");
         }
     }
 
